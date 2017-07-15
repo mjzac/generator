@@ -381,7 +381,7 @@ class ExpressTS {
           "passport-facebook": "^2.1.1",
           "passport-local": "^1.0.0",
           "pug": "^2.0.0-beta11",
-          "request": "^2.81.0"
+          "request": "^2.78.0"
         },
         "devDependencies": {
           "@types/async": "^2.0.40",
@@ -401,7 +401,7 @@ class ExpressTS {
           "@types/nodemailer": "^1.3.32",
           "@types/passport": "^0.3.3",
           "@types/passport-facebook": "^2.1.3",
-          "@types/request": "^0.0.47",
+          "@types/request": "0.0.42",
           "@types/supertest": "^2.0.0",
           "concurrently": "^3.4.0",
           "jest": "^19.0.2",
@@ -449,6 +449,9 @@ class ExpressTS {
       this.copyTemplate('ts/tslint.json', path + '/tslint.json')
       this.copyTemplate('ts/tsconfig.json', path + '/tsconfig.json');
       this.copyTemplate('ts/editorconfig', path + '/.editorconfig')
+      this.copyTemplate('ts/env.example', path + '/.env.example')
+      this.copyTemplate('ts/package-lock.json', path + '/package-lock.json')
+      this.copyTemplate('ts/yarn.lock', path + '/.yarn.lock')
 
       if (program.git) {
         this.copyTemplate('ts/gitignore', path + '/.gitignore')
