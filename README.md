@@ -13,12 +13,12 @@ $ npm install -g express-generator-ts
 
 ## Quick Start
 
-The quickest way to get started with express is to utilize the executable `express(1)` to generate an application as shown below:
+The quickest way to get started with express is to utilize the executable `express-ts(1)` to generate an application as shown below:
 
 Create the app:
 
 ```bash
-$ express --view=hbs /tmp/foo && cd /tmp/foo
+$ express-ts  /tmp/foo && cd /tmp/foo
 ```
 
 Install dependencies:
