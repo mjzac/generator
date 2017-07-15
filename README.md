@@ -4,14 +4,11 @@
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
-[![Linux Build][travis-image]][travis-url]
-[![Windows Build][appveyor-image]][appveyor-url]
-[![Gratipay][gratipay-image]][gratipay-url]
 
 ## Installation
 
 ```sh
-$ npm install -g express-generator
+$ npm install -g express-generator-ts
 ```
 
 ## Quick Start
