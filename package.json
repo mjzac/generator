@@ -1,7 +1,7 @@
 {
-  "name": "express-generator",
-  "description": "Express' application generator",
-  "version": "4.15.0",
+  "name": "express-generator-ts",
+  "description": "Express Typescript application generator",
+  "version": "1.0.0",
   "author": "Melson Zacharias <jmelson7@gmail.com>",
   "contributors": [
     "TJ Holowaychuk <tj@vision-media.ca>",
@@ -14,6 +14,7 @@
   ],
   "keywords": [
     "express",
+    "typescript",
     "framework",
     "sinatra",
     "web",
@@ -23,7 +24,7 @@
     "app",
     "api"
   ],
-  "repository": "expressjs/generator",
+  "repository": "mjzac/generator",
   "license": "MIT",
   "dependencies": {
     "@types/fs-extra": "^3.0.3",
@@ -33,7 +34,7 @@
     "mkdirp": "^0.5.1",
     "sorted-object": "2.0.1"
   },
-  "main": "bin/express-ts-cli.js",
+  "main": "dist/express-ts-cli.js",
   "preferGlobal": true,
   "bin": {
     "express-ts": "./bin/express-ts-cli.js"
@@ -58,6 +59,7 @@
   "files": [
     "LICENSE",
     "bin/",
+    "dist/",
     "templates/"
   ],
   "scripts": {
