@@ -1,6 +1,6 @@
 [![Express Logo](https://i.cloudup.com/zfY6lL7eFa-3000x3000.png)](http://expressjs.com/)
 
-[Express'](https://www.npmjs.com/package/express) application generator.
+[Express](https://www.npmjs.com/package/express) Typescript application generator.
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
@@ -39,11 +39,8 @@ This generator can also be further configured with the following command line fl
 
     -h, --help          output usage information
         --version       output the version number
-    -e, --ejs           add ejs engine support
-        --hbs           add handlebars engine support
         --pug           add pug engine support
-    -H, --hogan         add hogan.js engine support
-    -v, --view <engine> add view <engine> support (dust|ejs|hbs|hjs|jade|pug|twig|vash) (defaults to jade)
+    -v, --view <engine> add view <engine> support pug (for now)
     -c, --css <engine>  add stylesheet <engine> support (less|stylus|compass|sass) (defaults to plain css)
         --git           add .gitignore
     -f, --force         force on non-empty directory
@@ -53,12 +50,12 @@ This generator can also be further configured with the following command line fl
 [MIT](LICENSE)
 
 [npm-image]: https://img.shields.io/npm/v/express-generator.svg
-[npm-url]: https://npmjs.org/package/express-generator
+[npm-url]: https://npmjs.org/package/express-generator-ts
 [travis-image]: https://img.shields.io/travis/expressjs/generator/master.svg?label=linux
 [travis-url]: https://travis-ci.org/expressjs/generator
 [appveyor-image]: https://img.shields.io/appveyor/ci/dougwilson/generator/master.svg?label=windows
 [appveyor-url]: https://ci.appveyor.com/project/dougwilson/generator
 [downloads-image]: https://img.shields.io/npm/dm/express-generator.svg
-[downloads-url]: https://npmjs.org/package/express-generator
+[downloads-url]: https://npmjs.org/package/express-generator-ts
 [gratipay-image]: https://img.shields.io/gratipay/dougwilson.svg
 [gratipay-url]: https://gratipay.com/dougwilson/
