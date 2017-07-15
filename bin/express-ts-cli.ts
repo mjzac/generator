@@ -325,7 +325,7 @@ class ExpressTS {
       }
 
       // package.json
-      var pkg = {
+      var pkg: any = {
         "name": name,
         "version": "0.0.0",
         "description": "Node server written in TS.",
