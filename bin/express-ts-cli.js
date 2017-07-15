@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 "use strict";
 exports.__esModule = true;
 var fs = require("fs");
@@ -5,6 +6,7 @@ var path = require("path");
 var readline = require("readline");
 var util = require("util");
 var ejs = require("ejs");
+var fse = require("fs-extra");
 var mkdirp = require("mkdirp");
 var program = require("commander");
 var sortedObject = require("sorted-object");
@@ -31,6 +33,7 @@ function exit(code) {
         stream.write('', done);
     });
     done();
+    return;
 }
 var ExpressTS = (function () {
     function ExpressTS() {
@@ -56,9 +59,7 @@ var ExpressTS = (function () {
             .usage('[options] [dir]')
             .option('-e, --ejs', 'add ejs engine support', this.renamedOption('--ejs', '--view=ejs'))
             .option('    --pug', 'add pug engine support', this.renamedOption('--pug', '--view=pug'))
-            .option('    --hbs', 'add handlebars engine support', this.renamedOption('--hbs', '--view=hbs'))
-            .option('-H, --hogan', 'add hogan.js engine support', this.renamedOption('--hogan', '--view=hogan'))
-            .option('-v, --view <engine>', 'add view <engine> support (dust|ejs|hbs|hjs|jade|pug|twig|vash) (defaults to jade)')
+            .option('-v, --view <engine>', 'add view <engine> support (ejs|pug) (defaults to pug)')
             .option('-c, --css <engine>', 'add stylesheet <engine> support (less|stylus|compass|sass) (defaults to plain css)')
             .option('    --git', 'add .gitignore')
             .option('-f, --force', 'force on non-empty directory')
@@ -140,9 +141,13 @@ var ExpressTS = (function () {
         from = path.join(__dirname, '..', 'templates', from);
         this.write(to, fs.readFileSync(from, 'utf-8'));
     };
+    ExpressTS.prototype.copyFolder = function (from, to) {
+        from = path.join(__dirname, '..', 'templates', from);
+        fse.copySync(from, to);
+    };
     ExpressTS.prototype.createApplication = function (name, path) {
         var _this = this;
-        var wait = 5;
+        var wait = 8;
         console.log();
         var complete = function () {
             if (--wait)
@@ -170,77 +175,99 @@ var ExpressTS = (function () {
         app.locals.modules = Object.create(null);
         app.locals.uses = [];
         this.mkdir(path, function () {
-            _this.mkdir(path + '/public', function () {
-                _this.mkdir(path + '/public/javascripts');
-                _this.mkdir(path + '/public/images');
-                _this.mkdir(path + '/public/stylesheets', function () {
+            _this.mkdir(path + '/src/public', function () {
+                _this.copyTemplate('ts/src/server.ts', path + '/src/server.ts');
+                _this.mkdir(path + '/src/public/js', function () {
+                    _this.mkdir(path + '/src/public/js/lib');
+                    _this.copyFolder('ts/src/public/js/lib/', path + '/src/public/js/lib/');
+                    _this.copyTemplate('ts/src/public/js/main.ts', path + '/src/public/js/main.ts');
+                });
+                _this.mkdir(path + '/src/public/images');
+                _this.mkdir(path + '/src/public/fonts');
+                _this.mkdir(path + '/src/public/css', function () {
+                    _this.copyFolder('ts/src/public/css/', path + '/src/public/css/');
                     switch (program.css) {
                         case 'less':
-                            _this.copyTemplate('css/style.less', path + '/public/stylesheets/style.less');
+                            _this.copyTemplate('css/style.less', path + '/src/public/css/style.less');
                             break;
                         case 'stylus':
-                            _this.copyTemplate('css/style.styl', path + '/public/stylesheets/style.styl');
+                            _this.copyTemplate('css/style.styl', path + '/src/public/css/style.styl');
                             break;
                         case 'compass':
-                            _this.copyTemplate('css/style.scss', path + '/public/stylesheets/style.scss');
+                            _this.copyTemplate('css/style.scss', path + '/src/public/css/style.scss');
                             break;
                         case 'sass':
-                            _this.copyTemplate('css/style.sass', path + '/public/stylesheets/style.sass');
+                            _this.copyTemplate('css/style.sass', path + '/src/public/css/style.sass');
                             break;
                         default:
-                            _this.copyTemplate('css/style.css', path + '/public/stylesheets/style.css');
+                            _this.copyTemplate('css/style.css', path + '/src/public/css/style.css');
                             break;
                     }
                     complete();
                 });
             });
-            _this.mkdir(path + '/routes', function () {
-                _this.copyTemplate('js/routes/index.js', path + '/routes/index.js');
-                _this.copyTemplate('js/routes/users.js', path + '/routes/users.js');
+            _this.copyFolder('ts/src/config', path + '/src/config');
+            _this.copyFolder('ts/src/types', path + '/src/types');
+            _this.mkdir(path + '/src/routes', function () {
+                var theRoutes = ['account', 'api', 'contact', 'oauth', 'root'];
+                theRoutes.map(function (aRoute) {
+                    _this.copyTemplate('ts/src/routes/' + aRoute + '.ts', path + '/src/routes/' + aRoute + '.ts');
+                });
+                complete();
+            });
+            _this.mkdir(path + '/dist');
+            _this.mkdir(path + '/src/models', function () {
+                var theModels = ['User'];
+                theModels.map(function (aModel) {
+                    _this.copyTemplate('ts/src/models/' + aModel + '.ts', path + '/src/models/' + aModel + '.ts');
+                });
                 complete();
             });
             _this.mkdir(path + '/views', function () {
-                switch (program.view) {
-                    case 'dust':
-                        _this.copyTemplate('dust/index.dust', path + '/views/index.dust');
-                        _this.copyTemplate('dust/error.dust', path + '/views/error.dust');
-                        break;
-                    case 'ejs':
-                        _this.copyTemplate('ejs/index.ejs', path + '/views/index.ejs');
-                        _this.copyTemplate('ejs/error.ejs', path + '/views/error.ejs');
-                        break;
-                    case 'jade':
-                        _this.copyTemplate('jade/index.jade', path + '/views/index.jade');
-                        _this.copyTemplate('jade/layout.jade', path + '/views/layout.jade');
-                        _this.copyTemplate('jade/error.jade', path + '/views/error.jade');
-                        break;
-                    case 'hjs':
-                        _this.copyTemplate('hogan/index.hjs', path + '/views/index.hjs');
-                        _this.copyTemplate('hogan/error.hjs', path + '/views/error.hjs');
-                        break;
-                    case 'hbs':
-                        _this.copyTemplate('hbs/index.hbs', path + '/views/index.hbs');
-                        _this.copyTemplate('hbs/layout.hbs', path + '/views/layout.hbs');
-                        _this.copyTemplate('hbs/error.hbs', path + '/views/error.hbs');
-                        break;
-                    case 'pug':
-                        _this.copyTemplate('pug/index.pug', path + '/views/index.pug');
-                        _this.copyTemplate('pug/layout.pug', path + '/views/layout.pug');
-                        _this.copyTemplate('pug/error.pug', path + '/views/error.pug');
-                        break;
-                    case 'twig':
-                        _this.copyTemplate('twig/index.twig', path + '/views/index.twig');
-                        _this.copyTemplate('twig/layout.twig', path + '/views/layout.twig');
-                        _this.copyTemplate('twig/error.twig', path + '/views/error.twig');
-                        break;
-                    case 'vash':
-                        _this.copyTemplate('vash/index.vash', path + '/views/index.vash');
-                        _this.copyTemplate('vash/layout.vash', path + '/views/layout.vash');
-                        _this.copyTemplate('vash/error.vash', path + '/views/error.vash');
-                        break;
-                }
+                _this.mkdir(path + '/views/account');
+                _this.mkdir(path + '/views/api');
+                _this.mkdir(path + '/views/partials');
+                var rootViews = ['contact', 'home', 'layout'];
+                var accountViews = ['forgot', 'login', 'profile', 'reset', 'signup'];
+                var apiViews = ['facebook', 'index'];
+                var partialViews = ['flash', 'footer', 'header'];
+                var viewEngine = program.view;
+                rootViews.map(function (aView) {
+                    _this.copyTemplate(viewEngine + '/' + aView + '.' + viewEngine, path + '/views/' + aView + '.' + viewEngine);
+                });
+                accountViews.map(function (aView) {
+                    _this.copyTemplate(viewEngine + '/account/' + aView + '.' + viewEngine, path + '/views/account/' + aView + '.' + viewEngine);
+                });
+                apiViews.map(function (aView) {
+                    _this.copyTemplate(viewEngine + '/api/' + aView + '.' + viewEngine, path + '/views/api/' + aView + '.' + viewEngine);
+                });
+                partialViews.map(function (aView) {
+                    _this.copyTemplate(viewEngine + '/partials/' + aView + '.' + viewEngine, path + '/views/partials/' + aView + '.' + viewEngine);
+                });
                 complete();
             });
+            _this.mkdir(path + '/src/controllers', function () {
+                var theControllers = ['api', 'contact', 'home', 'user'];
+                theControllers.map(function (aController) {
+                    _this.copyTemplate('ts/src/controllers/' + aController + '.ts', path + '/src/controllers/' + aController + '.ts');
+                });
+                complete();
+            });
+            _this.mkdir(path + '/.vscode', function () {
+                var vsConfFiles = ['launch', 'settings', 'tasks'];
+                vsConfFiles.map(function (aConf) {
+                    _this.copyTemplate('ts/.vscode/' + aConf + '.json', path + '/.vscode/' + aConf + '.json');
+                });
+                complete();
+            });
+            _this.mkdir(path + '/test', function () {
+                var testFiles = ['api', 'app', 'contact', 'home', 'user'];
+                testFiles.map(function (aTestFile) {
+                    _this.copyTemplate('ts/test/' + aTestFile + '.test.ts', path + '/test/' + aTestFile + '.test.ts');
+                });
+                complete();
+            });
+            _this.copyTemplate('ts/copyStaticAssets.js', path + '/copyStaticAssets.js');
             // CSS Engine support
             switch (program.css) {
                 case 'less':
@@ -262,13 +289,6 @@ var ExpressTS = (function () {
             }
             // Template support
             switch (program.view) {
-                case 'dust':
-                    app.locals.modules.adaro = 'adaro';
-                    app.locals.view = {
-                        engine: 'dust',
-                        render: 'adaro.dust()'
-                    };
-                    break;
                 default:
                     app.locals.view = {
                         engine: program.view
@@ -277,45 +297,99 @@ var ExpressTS = (function () {
             }
             // package.json
             var pkg = {
-                name: name,
-                version: '0.0.0',
-                private: true,
-                scripts: {
-                    start: 'node ./bin/www'
+                "name": name,
+                "version": "0.0.0",
+                "description": "Node server written in TS.",
+                "private": true,
+                "scripts": {
+                    "start": "npm run build && npm run watch",
+                    "build": "npm run build-sass && npm run build-ts && npm run tslint && npm run copy-static-assets",
+                    "serve": "node dist/server.js",
+                    "watch": "concurrently -k -p \"[{name}]\" -n \"Sass,TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-sass\" \"npm run watch-ts\" \"nodemon dist/server.js\"",
+                    "test": "jest --forceExit --coverage",
+                    "build-ts": "tsc",
+                    "watch-ts": "tsc -w",
+                    "build-sass": "node-sass src/public/css/main.scss dist/public/css/main.css",
+                    "watch-sass": "node-sass -w src/public/css/main.scss dist/public/css/main.css",
+                    "tslint": "tslint -c tslint.json -p tsconfig.json",
+                    "copy-static-assets": "node copyStaticAssets.js"
                 },
-                dependencies: {
-                    'body-parser': '~1.17.1',
-                    'cookie-parser': '~1.4.3',
-                    'debug': '~2.6.3',
-                    'express': '~4.15.2',
-                    'morgan': '~1.8.1',
-                    'serve-favicon': '~2.4.2'
+                "jest": {
+                    "globals": {
+                        "__TS_CONFIG__": "tsconfig.json"
+                    },
+                    "moduleFileExtensions": [
+                        "ts",
+                        "js"
+                    ],
+                    "transform": {
+                        "^.+\\.(ts|tsx)$": "./node_modules/ts-jest/preprocessor.js"
+                    },
+                    "testMatch": [
+                        "**/test/**/*.test.(ts|js)"
+                    ],
+                    "testEnvironment": "node"
+                },
+                "dependencies": {
+                    "async": "^2.1.2",
+                    "bcrypt-nodejs": "^0.0.3",
+                    "body-parser": "^1.15.2",
+                    "compression": "^1.6.2",
+                    "connect-mongo": "^1.3.2",
+                    "dotenv": "^2.0.0",
+                    "errorhandler": "^1.4.3",
+                    "express": "^4.14.0",
+                    "express-flash": "^0.0.2",
+                    "express-session": "^1.14.2",
+                    "express-validator": "^3.1.3",
+                    "fbgraph": "^1.3.0",
+                    "lodash": "^4.17.4",
+                    "lusca": "^1.4.1",
+                    "mongoose": "^4.6.6",
+                    "morgan": "^1.7.0",
+                    "nodemailer": "^2.6.4",
+                    "passport": "0.3.2",
+                    "passport-facebook": "^2.1.1",
+                    "passport-local": "^1.0.0",
+                    "request": "^2.78.0"
+                },
+                "devDependencies": {
+                    "@types/async": "^2.0.40",
+                    "@types/body-parser": "^1.16.2",
+                    "@types/connect-mongo": "0.0.32",
+                    "@types/dotenv": "^2.0.20",
+                    "@types/errorhandler": "0.0.30",
+                    "@types/express": "^4.0.35",
+                    "@types/express-session": "0.0.32",
+                    "@types/jest": "^19.2.2",
+                    "@types/jquery": "^2.0.41",
+                    "@types/lodash": "^4.14.63",
+                    "@types/mongodb": "^2.1.43",
+                    "@types/mongoose": "^4.7.9",
+                    "@types/morgan": "^1.7.32",
+                    "@types/node": "^7.0.12",
+                    "@types/nodemailer": "^1.3.32",
+                    "@types/passport": "^0.3.3",
+                    "@types/passport-facebook": "^2.1.3",
+                    "@types/request": "0.0.42",
+                    "@types/supertest": "^2.0.0",
+                    "concurrently": "^3.4.0",
+                    "jest": "^19.0.2",
+                    "node-sass": "^4.5.2",
+                    "nodemon": "^1.11.0",
+                    "shelljs": "^0.7.7",
+                    "supertest": "^2.0.1",
+                    "ts-jest": "^19.0.8",
+                    "tslint": "^5.0.0",
+                    "typescript": "^2.2.2"
                 }
             };
             switch (program.view) {
-                case 'dust':
-                    pkg.dependencies['adaro'] = '~1.0.4';
-                    break;
-                case 'jade':
-                    pkg.dependencies['jade'] = '~1.11.0';
-                    break;
                 case 'ejs':
                     pkg.dependencies['ejs'] = '~2.5.6';
                     break;
-                case 'hjs':
-                    pkg.dependencies['hjs'] = '~0.0.6';
-                    break;
-                case 'hbs':
-                    pkg.dependencies['hbs'] = '~4.0.1';
-                    break;
                 case 'pug':
-                    pkg.dependencies['pug'] = '~2.0.0-beta11';
-                    break;
-                case 'twig':
-                    pkg.dependencies['twig'] = '~0.10.3';
-                    break;
-                case 'vash':
-                    pkg.dependencies['vash'] = '~0.12.2';
+                    pkg.dependencies['pug'] = '^2.0.0-beta11';
                     break;
             }
             // CSS Engine support
@@ -337,13 +411,12 @@ var ExpressTS = (function () {
             pkg.dependencies = sortedObject(pkg.dependencies);
             // write files
             _this.write(path + '/package.json', JSON.stringify(pkg, null, 2) + '\n');
-            _this.write(path + '/app.js', app.render());
-            _this.mkdir(path + '/bin', function () {
-                _this.write(path + '/bin/www', www.render(), MODE_0755);
-                complete();
-            });
+            _this.copyTemplate('ts/README.md', path + '/README.md');
+            _this.copyTemplate('ts/tslint.json', path + '/tslint.json');
+            _this.copyTemplate('ts/tsconfig.json', path + '/tsconfig.json');
+            _this.copyTemplate('ts/editorconfig', path + '/.editorconfig');
             if (program.git) {
-                _this.copyTemplate('js/gitignore', path + '/.gitignore');
+                _this.copyTemplate('ts/gitignore', path + '/.gitignore');
             }
             complete();
         });
@@ -395,9 +468,9 @@ var ExpressTS = (function () {
         }
         // Default view engine
         if (program.view === undefined) {
-            this.warning('the default view engine will not be jade in future releases\n' +
-                "use `--view=jade' or `--help' for additional options");
-            program.view = 'jade';
+            this.warning('using default view engine pug.\n' +
+                "use `--help' for additional options");
+            program.view = 'pug';
         }
         // Generate application
         this.emptyDirectory(destinationPath, function (empty) {
