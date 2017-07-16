@@ -417,8 +417,8 @@ var ExpressTS = (function () {
             _this.copyTemplate('ts/tsconfig.json', path + '/tsconfig.json');
             _this.copyTemplate('ts/editorconfig', path + '/.editorconfig');
             _this.copyTemplate('ts/env.example', path + '/.env.example');
-            _this.copyTemplate('ts/package-lock.json', path + '/package-lock.json');
-            _this.copyTemplate('ts/yarn.lock', path + '/.yarn.lock');
+            _this.copyTemplate('ts/packageLock.json', path + '/package-lock.json');
+            _this.copyTemplate('ts/yarn.lock', path + '/yarn.lock');
             if (program.git) {
                 _this.copyTemplate('ts/gitignore', path + '/.gitignore');
             }

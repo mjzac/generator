@@ -450,8 +450,8 @@ class ExpressTS {
       this.copyTemplate('ts/tsconfig.json', path + '/tsconfig.json');
       this.copyTemplate('ts/editorconfig', path + '/.editorconfig')
       this.copyTemplate('ts/env.example', path + '/.env.example')
-      this.copyTemplate('ts/package-lock.json', path + '/package-lock.json')
-      this.copyTemplate('ts/yarn.lock', path + '/.yarn.lock')
+      this.copyTemplate('ts/packageLock.json', path + '/package-lock.json')
+      this.copyTemplate('ts/yarn.lock', path + '/yarn.lock')
 
       if (program.git) {
         this.copyTemplate('ts/gitignore', path + '/.gitignore')
