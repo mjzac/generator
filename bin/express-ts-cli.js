@@ -147,7 +147,7 @@ var ExpressTS = (function () {
     };
     ExpressTS.prototype.createApplication = function (name, path) {
         var _this = this;
-        var wait = 8;
+        var wait = 10;
         console.log();
         var complete = function () {
             if (--wait)
@@ -178,9 +178,8 @@ var ExpressTS = (function () {
             _this.mkdir(path + '/src/public', function () {
                 _this.copyTemplate('ts/src/server.ts', path + '/src/server.ts');
                 _this.mkdir(path + '/src/public/js', function () {
-                    _this.mkdir(path + '/src/public/js/lib');
-                    _this.copyFolder('ts/src/public/js/lib/', path + '/src/public/js/lib/');
-                    _this.copyTemplate('ts/src/public/js/main.ts', path + '/src/public/js/main.ts');
+                    _this.copyFolder('ts/src/public/js/', path + '/src/public/js/');
+                    complete();
                 });
                 _this.mkdir(path + '/src/public/images');
                 _this.mkdir(path + '/src/public/fonts');
@@ -205,6 +204,7 @@ var ExpressTS = (function () {
                     }
                     complete();
                 });
+                complete();
             });
             _this.copyFolder('ts/src/config', path + '/src/config');
             _this.copyFolder('ts/src/types', path + '/src/types');

@@ -161,7 +161,7 @@ class ExpressTS {
     fse.copySync(from, to);
   }
   private createApplication(name: string, path: string) {
-    var wait = 8
+    var wait = 10
 
     console.log()
     let complete = () => {
@@ -198,9 +198,8 @@ class ExpressTS {
       this.mkdir(path + '/src/public', () => {
         this.copyTemplate('ts/src/server.ts', path + '/src/server.ts');
         this.mkdir(path + '/src/public/js', () => {
-          this.mkdir(path + '/src/public/js/lib');
-          this.copyFolder('ts/src/public/js/lib/', path + '/src/public/js/lib/');
-          this.copyTemplate('ts/src/public/js/main.ts', path + '/src/public/js/main.ts');
+          this.copyFolder('ts/src/public/js/', path + '/src/public/js/');
+          complete();
         })
         this.mkdir(path + '/src/public/images')
         this.mkdir(path + '/src/public/fonts')
@@ -225,6 +224,7 @@ class ExpressTS {
           }
           complete()
         })
+        complete()
       })
       this.copyFolder('ts/src/config', path + '/src/config');
       this.copyFolder('ts/src/types', path + '/src/types');
